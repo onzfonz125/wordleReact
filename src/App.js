@@ -95,6 +95,7 @@ function App() {
       checkLettersPos();
     } else {
       alert("Word not found!"); 
+      return;
     }
 
     if(currWord === correctWord) {
