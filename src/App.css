@@ -38,6 +38,13 @@ nav h1 {
   flex-direction: column;
 }
 
+.gameOver {
+  margin-top: 5vh;
+  font-size: 20px;
+  font-family: Helvetica, Arial, sans-serif;
+  
+}
+
 .board {
   margin-top: 1vh;
   width: 50vh;
