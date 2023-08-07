@@ -129,6 +129,10 @@ nav h1 {
   cursor: pointer;
 }
 
+#NaW {
+  background-color: #bb4242;
+}
+
 #big {
   width: 60px;
   font-size: 12px;

@@ -5,6 +5,7 @@ import Keyboard from './components/Keyboard';
 import { boardDefault, letterStatesArrDefault} from './Words';
 import { createContext, useEffect, useState } from 'react'; 
 import wordBank from "./wordle-bank.txt";
+import { waitFor } from '@testing-library/react';
 
 export const AppContext = createContext();
 
@@ -15,18 +16,29 @@ function App() {
   const [wordSet, setWordSet] = useState(new Set());
   const [disabledLetters, setDisabledLetters] = useState([]);
   const [gameOver, setGameOver] = useState({gameOver: false, guessedWord: false}) ;
-  const [correctWord, setCorrectWord] = useState(""); 
+  const [correctWord, setCorrectWord] = useState("");
+  const [notAWord, setNotAWord] = useState(false);
+  
 
  
   useEffect(() => {
     fetch(wordBank).then((response) =>  response.text()).then((result) => {
         const wordArray = result.split("\n");
+        setCorrectWord("RIHIT");
         setCorrectWord(wordArray[Math.floor(Math.random() * wordArray.length)].toUpperCase());
         setWordSet(new Set(wordArray));
     });
   }, [])
 
-  console.log(wordSet);
+  function timeout(delay) {
+    return new Promise( res => setTimeout(res, delay) );
+  }
+
+  const setErrorWord = async () => {
+    setNotAWord(true);
+    await timeout(500);
+    setNotAWord(false);
+  }
 
   function checkLettersPos() {
     letterStatesArr[currAttempt.attempt].forEach((value, i) => {
@@ -94,7 +106,7 @@ function App() {
       setCurrAttempt({attempt: currAttempt.attempt + 1, letterPos: 0});
       checkLettersPos();
     } else {
-      alert("Word not found!"); 
+      setErrorWord();
       return;
     }
 
@@ -114,7 +126,7 @@ function App() {
       <nav>
         <h1>Wordle</h1> 
       </nav>
-      <AppContext.Provider value={{board, setBoard, currAttempt, setCurrAttempt, onSelectLetter, onDelete, onEnter, correctWord, letterStatesArr, disabledLetters, setDisabledLetters, gameOver, setGameOver }}>
+      <AppContext.Provider value={{board, setBoard, currAttempt, setCurrAttempt, onSelectLetter, onDelete, onEnter, correctWord, letterStatesArr, disabledLetters, setDisabledLetters, gameOver, setGameOver, notAWord, setNotAWord}}>
         <div className='game'>
           <Board />
           {gameOver.gameOver ? <GameOver /> : <Keyboard />}
