@@ -9,12 +9,6 @@ function Letter({letterPos, attemptVal}) {
     const almost = letterStatesArr[attemptVal][letterPos] === "1";
     
     const letterState = notAWord && currAttempt.attempt === attemptVal ? "NaW" : currAttempt.attempt > attemptVal && (correct ? "correct" : almost ? "almost" : "error");
-
-    useEffect(() => {
-      if(!correct && !almost && letter !== "") {
-        setDisabledLetters((prev) => [...prev, letter]);
-      }
-    }, [currAttempt.attempt])
   return (
     <div className="letter" id={letterState}>{letter}</div> 
   )

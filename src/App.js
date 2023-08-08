@@ -5,7 +5,6 @@ import Keyboard from './components/Keyboard';
 import { boardDefault, letterStatesArrDefault} from './Words';
 import { createContext, useEffect, useState } from 'react'; 
 import wordBank from "./wordle-bank.txt";
-import { waitFor } from '@testing-library/react';
 
 export const AppContext = createContext();
 
@@ -15,6 +14,8 @@ function App() {
   const [letterStatesArr, setLetterStatesArr] = useState(letterStatesArrDefault);
   const [wordSet, setWordSet] = useState(new Set());
   const [disabledLetters, setDisabledLetters] = useState([]);
+  const [almostLetters, setAlmostLetters] = useState([]);
+  const [correctLetters, setCorrectLetters] = useState([]);
   const [gameOver, setGameOver] = useState({gameOver: false, guessedWord: false}) ;
   const [correctWord, setCorrectWord] = useState("");
   const [notAWord, setNotAWord] = useState(false);
@@ -24,7 +25,6 @@ function App() {
   useEffect(() => {
     fetch(wordBank).then((response) =>  response.text()).then((result) => {
         const wordArray = result.split("\n");
-        setCorrectWord("RIHIT");
         setCorrectWord(wordArray[Math.floor(Math.random() * wordArray.length)].toUpperCase());
         setWordSet(new Set(wordArray));
     });
@@ -44,6 +44,7 @@ function App() {
     letterStatesArr[currAttempt.attempt].forEach((value, i) => {
       if(board[currAttempt.attempt][i] === correctWord[i]) {
         letterStatesArr[currAttempt.attempt][i] = "0"; //correct
+        setCorrectLetters(prev => [...prev, board[currAttempt.attempt][i]]);
       }
     })
 
@@ -69,6 +70,9 @@ function App() {
         if(correctlessWord[j] !== " ") {
           if(correctWordCopy.join("").includes(correctlessWord[j])) {
             letterStatesArr[currAttempt.attempt][j] = "1";
+            if(!correctLetters.includes(correctlessWord[j])) {
+              setAlmostLetters([...almostLetters, correctlessWord[j]]);
+            }
             correctWordCopy[correctWordCopy.indexOf(correctlessWord[j])] = " ";
             correctlessWord[j] = " ";
             tries++;
@@ -76,6 +80,10 @@ function App() {
         }
       }
     }while(tries !== 0)
+
+    for (let i = 0; i < correctlessWord.length; i++) {
+      setDisabledLetters(prev => [...prev, correctlessWord[i]]);
+    }
   };
 
   const onSelectLetter = (keyVal) => {
@@ -126,7 +134,7 @@ function App() {
       <nav>
         <h1>Wordle</h1> 
       </nav>
-      <AppContext.Provider value={{board, setBoard, currAttempt, setCurrAttempt, onSelectLetter, onDelete, onEnter, correctWord, letterStatesArr, disabledLetters, setDisabledLetters, gameOver, setGameOver, notAWord, setNotAWord}}>
+      <AppContext.Provider value={{board, setBoard, currAttempt, setCurrAttempt, onSelectLetter, onDelete, onEnter, correctWord, letterStatesArr, disabledLetters, setDisabledLetters, gameOver, setGameOver, notAWord, setNotAWord, correctLetters, almostLetters}}>
         <div className='game'>
           <Board />
           {gameOver.gameOver ? <GameOver /> : <Keyboard />}
